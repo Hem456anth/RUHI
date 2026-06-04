@@ -48,7 +48,7 @@ async def main() -> int:
         "Hello, how are you?", source="en", target="te"
     )
     print(f"  EN: Hello, how are you?")
-    print(f"  TE: {translated}")
+    print(f"  TE: {translated.text}  (source={translated.detected_source})")
 
     print(f"\n--- 3. Gemini chat turn (single call) ---")
     from shared.llm import get_llm
