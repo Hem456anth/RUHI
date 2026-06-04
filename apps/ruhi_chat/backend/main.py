@@ -40,7 +40,7 @@ from fastapi import (
 )
 from fastapi.middleware.cors import CORSMiddleware
 from langchain_core.chat_history import InMemoryChatMessageHistory
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from apps.ruhi_chat.backend.pipeline import ChatPipeline, TurnResult
 from shared import __version__
@@ -79,7 +79,9 @@ app.add_middleware(
 
 
 class TextChatRequest(BaseModel):
-    text: str
+    # min_length=1 → empty/whitespace-only text returns 422 with a clean
+    # field-level error instead of letting the pipeline raise ValueError.
+    text: str = Field(..., min_length=1, max_length=4000)
     want_audio: bool = False
     speaker: str | None = None
     hint_language: str | None = None  # ISO 639-1 or BCP-47

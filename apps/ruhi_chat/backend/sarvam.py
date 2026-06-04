@@ -62,18 +62,32 @@ def to_bcp47(code: str) -> str:
 
 
 @dataclass
+class Translation:
+    """Result of a Mayura translate call."""
+    text: str                       # translated text
+    detected_source: str | None     # BCP-47 source the API actually used (helpful when we sent "auto")
+
+
+@dataclass
 class LanguageId:
-    language_code: str       # BCP-47, e.g. "te-IN"
-    script_code: str | None  # e.g. "Telu"
-    iso_code: str            # short ISO, e.g. "te"
+    language_code: str | None  # BCP-47 (e.g. "te-IN") or None if Sarvam couldn't identify
+    script_code: str | None    # e.g. "Telu"
+    iso_code: str | None       # short ISO, e.g. "te"
+
+    @property
+    def known(self) -> bool:
+        return bool(self.language_code) and self.language_code != "und"
 
     @classmethod
     def from_sarvam(cls, body: dict) -> "LanguageId":
-        bcp = body.get("language_code") or "und"
+        # Sarvam's text-lid can return ``language_code: null`` for short or
+        # ambiguous inputs. Surface the uncertainty instead of forging "und"
+        # (which is not in Sarvam's accepted source_language_code list).
+        bcp = body.get("language_code")
         return cls(
-            language_code=bcp,
+            language_code=bcp if bcp else None,
             script_code=body.get("script_code"),
-            iso_code=bcp.split("-")[0],
+            iso_code=bcp.split("-")[0] if bcp else None,
         )
 
 
@@ -134,7 +148,10 @@ class SarvamClient:
         source: str,
         target: str,
         mode: Literal["formal", "modern-colloquial", "classic-colloquial"] = "formal",
-    ) -> str:
+    ) -> Translation:
+        """Translate text. ``source`` may be ``"auto"`` — Sarvam will detect
+        and return the chosen source language in ``Translation.detected_source``.
+        """
         src_bcp = to_bcp47(source)
         tgt_bcp = to_bcp47(target)
         payload = {
@@ -151,7 +168,10 @@ class SarvamClient:
             payload=payload,
             fetch=lambda: self._post_json("/translate", payload),
         )
-        return body.get("translated_text", "")
+        return Translation(
+            text=body.get("translated_text", ""),
+            detected_source=body.get("source_language_code") or src_bcp,
+        )
 
     # ── 3. Speech to text (Saarika) ──────────────────────────────────
     async def transcribe(

@@ -84,32 +84,51 @@ class ChatPipeline:
             user_text_native = text or ""
             asr_lang = hint_language
 
-        # 2. Language ID (skip if ASR already gave us one; skip if obviously English)
-        if asr_lang and asr_lang != "auto":
+        # 2. Language ID
+        #    Hint > ASR lang > LID > "auto" (let translate detect).
+        #    LID can return null for short/ambiguous inputs; in that case
+        #    we don't fail — we send "auto" to translate and let Mayura
+        #    detect, then recover the actual source from its response.
+        if hint_language and hint_language not in ("auto", ""):
+            detected: str | None = to_bcp47(hint_language)
+        elif asr_lang and asr_lang != "auto":
             detected = to_bcp47(asr_lang)
         else:
             lid = await self.sarvam.identify_language(user_text_native)
-            detected = lid.language_code or self.agent_language
+            detected = lid.language_code  # may be None
 
-        # 3. Translate user → English (no-op if already English)
-        if detected.startswith("en"):
+        # 3. Translate user → English.
+        #    Skip if we already know it's English. Otherwise send what we
+        #    know (or "auto" if LID failed) and let Mayura confirm.
+        if detected and detected.startswith("en"):
             user_text_en = user_text_native
         else:
-            user_text_en = await self.sarvam.translate(
-                user_text_native, source=detected, target=self.agent_language
+            translation_in = await self.sarvam.translate(
+                user_text_native,
+                source=detected or "auto",
+                target=self.agent_language,
             )
+            user_text_en = translation_in.text
+            # If we sent "auto", Mayura's response tells us what it detected.
+            if not detected:
+                detected = translation_in.detected_source
 
         # 4. Agent
         agent_resp = await self.agent.respond(user_text_en, history=history)
         reply_en = agent_resp.reply
 
-        # 5. Translate reply → native (no-op if already English)
-        if detected.startswith("en"):
+        # 5. Translate reply → native (no-op if already English or still unknown).
+        if not detected or detected.startswith("en"):
             reply_native = reply_en
+            if not detected:
+                # Worst case: nobody ever identified the language. Mark it
+                # explicitly so the UI can show "unknown" instead of empty.
+                detected = "und"
         else:
-            reply_native = await self.sarvam.translate(
+            translation_out = await self.sarvam.translate(
                 reply_en, source=self.agent_language, target=detected
             )
+            reply_native = translation_out.text
 
         # 6. TTS (optional)
         reply_audio: bytes | None = None

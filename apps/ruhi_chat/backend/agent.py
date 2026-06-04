@@ -120,6 +120,30 @@ class AgentResponse:
     tool_calls: list[str]  # names of tools the agent invoked, in order
 
 
+def _extract_text(content: Any) -> str:
+    """Normalize ``AIMessage.content`` to plain text.
+
+    LangChain 1.x with Gemini returns ``content`` as a list of structured
+    blocks like ``[{"type": "text", "text": "...", "extras": {...}}]``; older
+    OpenAI/Ollama paths return plain strings. We accept both and concatenate
+    text blocks in order, ignoring non-text parts (thinking, signatures,
+    citations, etc.).
+    """
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts: list[str] = []
+        for block in content:
+            if isinstance(block, str):
+                parts.append(block)
+            elif isinstance(block, dict) and block.get("type") == "text":
+                text = block.get("text")
+                if isinstance(text, str):
+                    parts.append(text)
+        return "".join(parts).strip()
+    return str(content)
+
+
 class ChatAgent:
     """One agent instance per process; per-session history is held by the caller."""
 
@@ -153,9 +177,7 @@ class ChatAgent:
                 if getattr(m, "tool_calls", None):
                     tool_calls.extend(tc.get("name", "?") for tc in m.tool_calls)
                 if m.content:
-                    reply = (
-                        m.content if isinstance(m.content, str) else str(m.content)
-                    )
+                    reply = _extract_text(m.content)
 
         history.add_ai_message(reply)
         return AgentResponse(reply=reply, tool_calls=tool_calls)
