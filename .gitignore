@@ -1,0 +1,42 @@
+References/
+env/
+.vscode/
+__pycache__/
+experiments/
+*.log
+config.py
+*.pickle
+credentials.json
+*note.txt
+*.png
+*.mp4
+*dbs.txt
+
+# Secrets / env files — never commit
+.env
+.env.*
+!.env.example
+config.env
+config.env.*
+!config.env.example
+*.key
+*.pem
+
+# Caches
+.cache/
+*.sqlite
+
+# Python envs
+.venv/
+ruhi_env/
+env/
+
+# Node / Next.js (also ignored per-app, but belt + braces)
+node_modules/
+.next/
+out/
+
+# Local dev junk
+conversation_history.json
+take screenshot.png
+*-note.txt

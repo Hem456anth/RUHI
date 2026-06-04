@@ -1,0 +1,141 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ──────────────────────────────────────────────────────────────────
+ * Tokens
+ * Cool slate base with a single cyan accent. No purple gradients.
+ * Mixed radii (sm/md/2xl) to break uniform-rounded-corner slop.
+ * ────────────────────────────────────────────────────────────────── */
+:root {
+  --bg-0: #07090d;
+  --bg-1: #0c1118;
+  --bg-2: #121823;
+  --line: rgba(148, 163, 184, 0.14);
+  --line-strong: rgba(148, 163, 184, 0.28);
+  --text-1: #e6ecf3;
+  --text-2: #94a3b8;
+  --text-3: #64748b;
+  --accent: #38bdf8; /* cyan-400 */
+  --accent-soft: rgba(56, 189, 248, 0.14);
+  --good: #34d399;
+  --warn: #f59e0b;
+  --bad: #f87171;
+}
+
+html,
+body {
+  background: var(--bg-0);
+  color: var(--text-1);
+  min-height: 100vh;
+}
+
+body {
+  /* Very subtle vignette only — no purple gradient slop. */
+  background-image:
+    radial-gradient(ellipse 80% 50% at 100% 0%, rgba(56, 189, 248, 0.06), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 0% 100%, rgba(148, 163, 184, 0.05), transparent 60%);
+  background-attachment: fixed;
+}
+
+/* Subtle grid in the background panel — gives it texture without screaming. */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+ * Panels — flat with thin borders, not glassy blur soup.
+ * ────────────────────────────────────────────────────────────────── */
+.panel {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0));
+  border: 1px solid var(--line);
+}
+
+.panel-strong {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+}
+
+/* ──────────────────────────────────────────────────────────────────
+ * Hairlines & small UI bits
+ * ────────────────────────────────────────────────────────────────── */
+.hairline {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--line-strong), transparent);
+}
+
+.kbd {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 10px;
+  padding: 1px 5px;
+  border: 1px solid var(--line);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  color: var(--text-2);
+  background: var(--bg-2);
+}
+
+/* ──────────────────────────────────────────────────────────────────
+ * Message bubbles — distinct corners (tail) instead of uniform rounded.
+ * ────────────────────────────────────────────────────────────────── */
+.bubble-user {
+  border-radius: 18px 18px 6px 18px;
+}
+.bubble-assistant {
+  border-radius: 18px 18px 18px 6px;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+ * Animations
+ * ────────────────────────────────────────────────────────────────── */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 0.35; transform: translateY(0); }
+  50%      { opacity: 1;    transform: translateY(-2px); }
+}
+.dot-pulse > span {
+  display: inline-block;
+  width: 4px; height: 4px;
+  border-radius: 9999px;
+  background: var(--text-2);
+  margin: 0 2px;
+  animation: pulse-dot 1.1s infinite;
+}
+.dot-pulse > span:nth-child(2) { animation-delay: 0.15s; }
+.dot-pulse > span:nth-child(3) { animation-delay: 0.30s; }
+
+@keyframes record-ring {
+  0%   { box-shadow: 0 0 0 0   rgba(248, 113, 113, 0.55); }
+  100% { box-shadow: 0 0 0 14px rgba(248, 113, 113, 0); }
+}
+.recording {
+  animation: record-ring 1.2s ease-out infinite;
+}
+
+@keyframes greet-fade {
+  0%   { opacity: 0; transform: translateY(6px); }
+  10%  { opacity: 1; transform: translateY(0); }
+  90%  { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-6px); }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+ * Scrollbar
+ * ────────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.16);
+  border-radius: 8px;
+  border: 2px solid var(--bg-0);
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.3); }
+
+/* Focus rings — accent cyan, not blue/purple */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
