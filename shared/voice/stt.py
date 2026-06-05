@@ -1,20 +1,17 @@
 """Pluggable speech-to-text.
 
-Mirrors ``shared.voice.tts``. Implementations are lazy-imported so neither app
-pays for the other's stack.
+Mirrors ``shared.voice.tts``. Implementations are lazy-imported so the shared
+layer never pays for a vendor SDK at import time.
 
 Providers
 ---------
-- ``MockSTT``         — returns "" for any audio. Tests and credit-free dev.
-- ``SarvamSTT``       — Saarika ASR, Indian languages, cached.   [RUHI Chat]
-- ``WhisperSTT``      — faster-whisper, offline.                 [RUHI Jarvis]
+- ``MockSTT``   — returns "" for any audio. Tests and credit-free dev.
+- ``SarvamSTT`` — Saarika ASR, Indian languages, cached.
 """
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-
-from shared.config import settings
 
 
 @dataclass
@@ -70,47 +67,16 @@ class SarvamSTT(STTProvider):
         return Transcript(**cached)
 
 
-class WhisperSTT(STTProvider):
-    """Offline ASR via faster-whisper. Default for RUHI Jarvis."""
-
-    name = "whisper"
-
-    def __init__(self, model: str | None = None):
-        self.model_name = model or settings.whisper_model
-        self._model = None
-
-    def _ensure_loaded(self):
-        if self._model is None:
-            from faster_whisper import WhisperModel  # type: ignore[import-not-found]
-
-            self._model = WhisperModel(self.model_name, compute_type="int8")
-
-    async def transcribe(self, audio: bytes, *, language: str | None = None) -> Transcript:
-        import io
-
-        self._ensure_loaded()
-        segments, info = self._model.transcribe(
-            io.BytesIO(audio), language=language, beam_size=1
-        )
-        text = " ".join(seg.text for seg in segments).strip()
-        return Transcript(text=text, language=info.language, confidence=info.language_probability)
-
-
 # ── factory ──────────────────────────────────────────────────────────
 
 
 def get_stt(provider: str | None = None, **kwargs) -> STTProvider:
+    """Return an STT provider by name. Defaults to ``MockSTT``."""
     if provider is None:
-        provider = (
-            settings.jarvis_stt_provider
-            if settings.app_mode.value == "jarvis"
-            else "mock"
-        )
+        provider = "mock"
 
     if provider == "mock":
         return MockSTT()
-    if provider == "whisper":
-        return WhisperSTT(**kwargs)
     if provider == "sarvam":
         return SarvamSTT(**kwargs)
     raise ValueError(f"Unknown STT provider: {provider!r}")

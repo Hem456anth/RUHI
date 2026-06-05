@@ -52,7 +52,6 @@ RUHI/
 ├── apps/ruhi_chat/
 │   ├── backend/                # FastAPI + WS + Sarvam client + LangGraph agent + pipeline
 │   └── frontend/               # Next.js 14 + Tailwind
-├── docs/SPLIT_PLAN.md          # architecture rationale
 ├── README.md                   # this file
 ├── SETUP.md                    # detailed install + API keys
 ├── GUIDE.md                    # usage + troubleshooting
@@ -87,4 +86,4 @@ MIT.
 
 - **[Sarvam AI](https://sarvam.ai)** — Indian-language speech + translation models.
 - **[Google Gemini](https://ai.google.dev)** — reasoning layer.
-- Built on the codebase rebuild of an earlier desktop voice assistant. See [docs/SPLIT_PLAN.md](docs/SPLIT_PLAN.md) for the migration story.
+- Built on the codebase rebuild of an earlier desktop voice assistant.

@@ -5,13 +5,12 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ruhi"
 version = "0.2.0"
-description = "RUHI — multilingual chatbot (Chat) + local agentic dashboard (Jarvis), sharing one core."
+description = "RUHI Chat — multilingual AI chatbot for 10 Indian languages."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 
-# Shared core deps used by both apps. App-specific deps live in
-# apps/ruhi-chat/requirements.txt and apps/ruhi-jarvis/requirements.txt.
+# Shared core deps. App-specific deps live in apps/ruhi_chat/.
 dependencies = [
     # Config
     "pydantic>=2.6",
@@ -24,7 +23,6 @@ dependencies = [
     "langgraph>=0.2",
     "langchain-google-genai>=2.0",
     "langchain-openai>=0.2",
-    "langchain-ollama>=0.2",
     # Memory
     "chromadb>=0.5",
     # HTTP
@@ -45,14 +43,6 @@ dependencies = [
 chat = [
     # RUHI Chat-specific. Sarvam SDK if/when published; otherwise httpx direct.
     "sarvamai>=0.1.4 ; python_version >= '3.10'",
-]
-jarvis = [
-    # RUHI Jarvis-specific. Offline voice.
-    "faster-whisper>=1.0",
-    "piper-tts>=1.2 ; sys_platform != 'darwin'",
-    "screen-brightness-control>=0.22",
-    # Optional premium voice (requires GPU):
-    # "vibevoice",
 ]
 dev = [
     "pytest>=8.0",
