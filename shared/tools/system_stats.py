@@ -1,7 +1,7 @@
-"""System stats — CPU, RAM, battery, disk. Used by Jarvis dashboard widgets.
+"""System stats — CPU, RAM, battery, disk.
 
-Ported from ``Ruhi/features/system_stats.py`` — replaced pyttsx3 coupling
-and string formatting with a structured dataclass the dashboard can render.
+Ported from the legacy desktop assistant — replaced ``pyttsx3`` coupling
+and string formatting with a structured dataclass any caller can render.
 """
 from __future__ import annotations
 

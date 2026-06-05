@@ -9,9 +9,9 @@ translates outbound text). Keeping the agent monolingual:
   - decouples agent quality from Mayura translation quality (which is
     Sarvam's strongest model anyway).
 
-The tool set is intentionally narrower than Jarvis's: chat users want
-"what's the weather", "find news about X", "look this up" — not system
-control. Calendar/notes are exposed too for personal-assistant flavor.
+The tool set is intentionally compact: chat users want "what's the weather",
+"find news about X", "look this up" — not system control. Calendar/notes
+are exposed for personal-assistant flavor.
 """
 from __future__ import annotations
 

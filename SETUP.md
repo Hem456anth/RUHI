@@ -180,4 +180,3 @@ You installed GitHub CLI but PATH didn't refresh. Close and reopen PowerShell.
 ## 8. Next steps
 
 - Read **[GUIDE.md](GUIDE.md)** for how to actually use the chat (text + voice + tool calls + multilingual quirks).
-- Read **[docs/SPLIT_PLAN.md](docs/SPLIT_PLAN.md)** for the architecture rationale (why Sarvam vs Bhashini, why an English-pivot agent, etc.).

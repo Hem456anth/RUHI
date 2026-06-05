@@ -4,7 +4,9 @@ env/
 __pycache__/
 experiments/
 *.log
-config.py
+# Legacy desktop assistant secret file (Ruhi/config/config.py).
+# Use explicit path so it doesn't shadow shared/config.py.
+Ruhi/config/config.py
 *.pickle
 credentials.json
 *note.txt

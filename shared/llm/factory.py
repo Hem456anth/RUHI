@@ -1,18 +1,17 @@
 """LLM provider factory.
 
 A thin wrapper that returns a LangChain-compatible chat model based on the provider
-name. Both apps go through this so the agent layer doesn't import vendor SDKs directly.
+name. The agent layer goes through this so it doesn't import vendor SDKs directly.
 
 Providers
 ---------
-- ``gemini``  → ``ChatGoogleGenerativeAI`` (RUHI Chat default — native multilingual)
+- ``gemini``  → ``ChatGoogleGenerativeAI`` (default — native multilingual)
 - ``openai``  → ``ChatOpenAI``
-- ``ollama``  → ``ChatOllama`` (RUHI Jarvis default — local-first)
 
 Usage
 -----
 >>> from shared.llm import get_llm
->>> llm = get_llm("gemini", model="gemini-1.5-pro", temperature=0.2)
+>>> llm = get_llm("gemini", model="gemini-2.5-flash", temperature=0.2)
 """
 from __future__ import annotations
 
@@ -20,7 +19,7 @@ from typing import Any, Literal
 
 from shared.config import settings
 
-Provider = Literal["gemini", "openai", "ollama"]
+Provider = Literal["gemini", "openai"]
 
 # Sensible per-provider defaults. Apps can override.
 _DEFAULT_MODELS: dict[str, str] = {
@@ -28,7 +27,6 @@ _DEFAULT_MODELS: dict[str, str] = {
     # Flash is fast + cheap and plenty capable for chat — Pro is overkill here.
     "gemini": "gemini-2.5-flash",
     "openai": "gpt-4o",
-    "ollama": settings.ollama_model,
 }
 
 
@@ -44,20 +42,15 @@ def get_llm(
 
     Parameters
     ----------
-    provider : "gemini" | "openai" | "ollama" | None
-        If None, picks the configured default for the current app mode
-        (Chat → ``chat_llm_provider``; Jarvis → ``jarvis_llm_provider``).
+    provider : "gemini" | "openai" | None
+        If None, picks ``settings.chat_llm_provider``.
     model : str, optional
         Override the per-provider default model name.
     temperature, streaming, **kwargs
         Forwarded to the underlying LangChain class.
     """
     if provider is None:
-        provider = (
-            settings.jarvis_llm_provider
-            if settings.app_mode.value == "jarvis"
-            else settings.chat_llm_provider
-        )
+        provider = settings.chat_llm_provider
 
     chosen_model = model or _DEFAULT_MODELS[provider]
 
@@ -81,16 +74,6 @@ def get_llm(
             api_key=settings.openai_api_key,
             temperature=temperature,
             streaming=streaming,
-            **kwargs,
-        )
-
-    if provider == "ollama":
-        from langchain_ollama import ChatOllama
-
-        return ChatOllama(
-            model=chosen_model,
-            base_url=settings.ollama_base_url,
-            temperature=temperature,
             **kwargs,
         )
 

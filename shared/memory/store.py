@@ -1,10 +1,10 @@
-"""ChromaDB-backed memory used by both apps.
+"""ChromaDB-backed memory for RUHI Chat.
 
 Two layers:
 
 1. ``MemoryStore`` — long-term semantic memory in ChromaDB. Collections are
-   namespaced ``<app>__<session_id>`` so RUHI Chat sessions don't bleed into
-   RUHI Jarvis (and vice versa).
+   namespaced ``<app>__<session_id>`` so different surfaces (chat, future
+   variants) can coexist without bleeding into each other.
 2. ``conversation_memory()`` — a per-session ``InMemoryChatMessageHistory``
    (LangChain 1.x) for short-term turn-by-turn context the agent consumes directly.
 
@@ -27,7 +27,7 @@ from langchain_core.chat_history import InMemoryChatMessageHistory
 
 from shared.config import settings
 
-AppName = Literal["chat", "jarvis"]
+AppName = Literal["chat"]
 
 
 def _collection_name(app: AppName, session_id: str) -> str:

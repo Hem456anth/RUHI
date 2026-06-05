@@ -1,8 +1,8 @@
 """System control — brightness, volume, app launch/close, WiFi, system info.
 
-Ported from ``features/automation/system_control.py``: dropped the per-instance
-scripts directory (out of scope for the split) and the ``SystemControl`` class
-wrapper. These are now plain async functions consumed by Jarvis agent tools.
+Ported from the legacy desktop assistant: dropped the per-instance scripts
+directory and the ``SystemControl`` class wrapper. These are plain async
+functions consumable by any agent tool layer.
 
 Cross-platform: Windows / Linux / macOS branches preserved.
 """
