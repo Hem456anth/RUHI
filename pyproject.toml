@@ -47,10 +47,14 @@ chat = [
     "sarvamai>=0.1.4 ; python_version >= '3.10'",
 ]
 jarvis = [
-    # RUHI Jarvis-specific. Offline voice.
+    # RUHI Jarvis-specific. Local-first, offline voice, Ollama for reasoning.
+    "langchain-ollama>=0.2",
     "faster-whisper>=1.0",
     "piper-tts>=1.2 ; sys_platform != 'darwin'",
     "screen-brightness-control>=0.22",
+    # Windows volume control via pycaw (system_control.set_volume on Windows)
+    "pycaw>=20240210 ; sys_platform == 'win32'",
+    "comtypes>=1.4 ; sys_platform == 'win32'",
     # Optional premium voice (requires GPU):
     # "vibevoice",
 ]
